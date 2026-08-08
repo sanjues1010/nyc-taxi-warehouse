@@ -1,0 +1,16 @@
+data/
+spark-warehouse/
+checkpoints/
+derby.log
+metastore_db/
+logs/
+airflow.db
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Spark's local-filesystem write sidecar files -- harmless, not worth
+# committing alongside the intentional sample_data/ parquet fixture.
+sample_data/**/_SUCCESS
+sample_data/**/*.crc
