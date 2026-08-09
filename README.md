@@ -3,9 +3,11 @@
 A local, end-to-end batch data platform built on PySpark, turning raw NYC TLC
 Yellow Taxi trip records into a validated, queryable warehouse.
 
-Built as a progression of stages — beginner ingest/clean → medallion lakehouse
-(bronze/silver/gold) → dimensional warehouse with full Airflow orchestration —
-each stage consuming the previous stage's output.
+Built as a progression of iterations — beginner ingest/clean → medallion
+lakehouse (bronze/silver/gold) → dimensional warehouse with full Airflow
+orchestration. Each iteration is a standalone rebuild at increasing
+sophistication, reusing the previous iteration's logic rather than reading
+its persisted output as input.
 
 ## Data
 
