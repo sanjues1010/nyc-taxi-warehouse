@@ -11,7 +11,7 @@ its persisted output as input.
 
 ## Data
 
-- [NYC TLC Trip Record Data](https://www1.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
+- [NYC TLC Trip Record Data](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page)
   (monthly Yellow Taxi Parquet files) + the TLC Taxi Zone Lookup CSV.
 - Real data is never committed to this repo — see `scripts/download_data.sh`.
   A small token sample lives under `sample_data/` for running the pipeline

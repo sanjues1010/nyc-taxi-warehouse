@@ -14,3 +14,7 @@ __pycache__/
 # committing alongside the intentional sample_data/ parquet fixture.
 sample_data/**/_SUCCESS
 sample_data/**/*.crc
+
+# Generated per-run script output -- reproducible from the committed
+# sample_data/ input, not itself a fixture worth tracking.
+sample_data/cleaned/
