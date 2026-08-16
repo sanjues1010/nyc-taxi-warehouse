@@ -7,7 +7,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import avg, col, count, hour, sum as spark_sum, when
+from pyspark.sql.functions import avg, coalesce, col, count, hour, lit, sum as spark_sum, when
 
 from common.spark_session import get_spark
 
@@ -56,9 +56,14 @@ def clean_trips(trips: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame]:
 
 def _distance_and_time_stats(trips: DataFrame):
     return trips.agg(
-        spark_sum(when(col("trip_distance") < 0, 1).otherwise(0)).alias("negative_distances"),
-        spark_sum(
-            when(col("tpep_dropoff_datetime") < col("tpep_pickup_datetime"), 1).otherwise(0)
+        coalesce(
+            spark_sum(when(col("trip_distance") < 0, 1).otherwise(0)), lit(0)
+        ).alias("negative_distances"),
+        coalesce(
+            spark_sum(
+                when(col("tpep_dropoff_datetime") < col("tpep_pickup_datetime"), 1).otherwise(0)
+            ),
+            lit(0),
         ).alias("bad_trip_times"),
     ).collect()[0]
 
@@ -141,6 +146,8 @@ def main() -> None:
     zones = spark.read.option("header", True).csv(str(SAMPLE_DIR / "taxi_zone_lookup.csv"))
 
     trips_valid, null_dropped, negative_fares = clean_trips(trips)
+    trips_valid.cache()
+    negative_fares.cache()
     assert_data_quality(trips_valid, negative_fares)
     # trips_valid.printSchema()
     # zones.printSchema()
@@ -157,6 +164,9 @@ def main() -> None:
 
     run_dir = CLEANED_DIR / datetime.now().strftime("%Y%m%d_%H%M%S")
     write_outputs(trips_valid, null_dropped, negative_fares, run_dir)
+
+    trips_valid.unpersist()
+    negative_fares.unpersist()
 
     spark.stop()
 
