@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Fetches real NYC TLC data into a folder OUTSIDE this repo, per the
-# no-real-data-in-git policy in ../../../notes/PROJECT_IDEAS.md.
+# Fetches real NYC TLC data into this repo's gitignored data/ folder, laid
+# out the same way as sample_data/ (a trips/ subfolder of parquet files, plus
+# a top-level taxi_zone_lookup.csv) so iteration scripts can read either one
+# via --data-dir.
 #
 # Usage: ./download_data.sh YYYY-MM
 #
@@ -11,12 +13,14 @@ set -euo pipefail
 # pattern below is stable across months without visiting the page each time.
 
 YEAR_MONTH="${1:?Usage: ./download_data.sh YYYY-MM}"
-DATA_DIR="$HOME/projects/pyspark/data/nyc-taxi"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+DATA_DIR="$REPO_ROOT/data"
 TLC_BASE_URL="https://d37ci6vzurychx.cloudfront.net"
 TRIP_DATA_URL="${TLC_BASE_URL}/trip-data/yellow_tripdata_${YEAR_MONTH}.parquet"
 ZONE_LOOKUP_URL="${TLC_BASE_URL}/misc/taxi_zone_lookup.csv"
 
-mkdir -p "$DATA_DIR"
+mkdir -p "$DATA_DIR/trips"
 
 # The zone lookup file always exists, so it doubles as a health check for
 # TLC_BASE_URL itself -- if even that 404s, the CloudFront URL has likely
@@ -44,7 +48,7 @@ fetch() {
     fi
 }
 
-fetch "$TRIP_DATA_URL" "$DATA_DIR/yellow_tripdata_${YEAR_MONTH}.parquet" "trip data for $YEAR_MONTH"
+fetch "$TRIP_DATA_URL" "$DATA_DIR/trips/yellow_tripdata_${YEAR_MONTH}.parquet" "trip data for $YEAR_MONTH"
 fetch "$ZONE_LOOKUP_URL" "$DATA_DIR/taxi_zone_lookup.csv" "zone lookup"
 
 echo "Downloaded to $DATA_DIR"

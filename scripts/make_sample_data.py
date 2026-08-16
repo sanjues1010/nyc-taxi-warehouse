@@ -7,7 +7,7 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from common.spark_session import get_spark
 
-DATA_DIR = Path.home() / "projects" / "pyspark" / "data" / "nyc-taxi"
+DATA_DIR = REPO_ROOT / "data"
 SAMPLE_DIR = REPO_ROOT / "sample_data"
 SOURCE_MONTH = "2026-01"
 SAMPLE_ROWS = 5_000
@@ -17,7 +17,7 @@ SEED = 42
 def main():
     spark = get_spark("make_sample_data")
 
-    trips = spark.read.parquet(str(DATA_DIR / f"yellow_tripdata_{SOURCE_MONTH}.parquet"))
+    trips = spark.read.parquet(str(DATA_DIR / "trips" / f"yellow_tripdata_{SOURCE_MONTH}.parquet"))
     total_rows = trips.count()
 
     trips_sample = trips.sample(withReplacement=False, fraction=SAMPLE_ROWS / total_rows, seed=SEED)
