@@ -1,3 +1,4 @@
+import argparse
 import functools
 from datetime import datetime
 from pathlib import Path
@@ -5,7 +6,7 @@ from pathlib import Path
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import avg, coalesce, col, count, hour, lit, sum as spark_sum, when
 
-from common.paths import INPUT_SAMPLE_DIR, output_dir
+from common.paths import INPUT_MAIN_DIR, INPUT_SAMPLE_DIR, output_dir
 from common.spark_session import get_spark
 
 REQUIRED_TRIP_FIELDS = [
@@ -133,11 +134,26 @@ def write_outputs(
     print(f"wrote cleaned output to {run_dir}")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--sample-data",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="read from data/input_sample/ (default) instead of data/input_main/",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    args = parse_args()
+    data_dir = INPUT_SAMPLE_DIR if args.sample_data else INPUT_MAIN_DIR
+    source = "sample" if args.sample_data else "input_main"
+
     spark = get_spark("iteration1_ingest_clean")
 
-    trips = spark.read.parquet(str(INPUT_SAMPLE_DIR / "trips"))
-    zones = spark.read.option("header", True).csv(str(INPUT_SAMPLE_DIR / "taxi_zone_lookup.csv"))
+    trips = spark.read.parquet(str(data_dir / "trips"))
+    zones = spark.read.option("header", True).csv(str(data_dir / "taxi_zone_lookup.csv"))
 
     trips_valid, null_dropped, negative_fares = clean_trips(trips)
     trips_valid.cache()
@@ -156,7 +172,7 @@ def main() -> None:
     tips = tips_by_payment_type(trips_valid)
     tips.show(truncate=False)
 
-    run_dir = output_dir("iteration1_ingest_clean", "sample") / datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_dir = output_dir("iteration1_ingest_clean", source) / datetime.now().strftime("%Y%m%d_%H%M%S")
     write_outputs(trips_valid, null_dropped, negative_fares, run_dir)
 
     trips_valid.unpersist()

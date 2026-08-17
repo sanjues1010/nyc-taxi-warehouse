@@ -32,6 +32,10 @@ directly-executed script's own directory to its import path.
 pipeline itself, so they intentionally derive their own paths locally
 rather than depending on `common/`.
 
+See `KNOWN_LIMITATIONS.md` for concrete cases where one iteration's approach
+breaks or falls short in practice, and which later iteration is expected to
+close the gap.
+
 ## Setup
 
 ```

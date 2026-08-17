@@ -1,22 +1,23 @@
 import argparse
 
-from common.paths import DATA_ROOT
+from common.paths import INPUT_MAIN_DIR, INPUT_SAMPLE_DIR
 from common.spark_session import get_spark
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--data-dir",
-        default="input_sample",
-        help="folder under data/ to read trip/zone data from (default: input_sample)",
+        "--sample-data",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="read from data/input_sample/ (default) instead of data/input_main/",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    data_dir = DATA_ROOT / args.data_dir
+    data_dir = INPUT_SAMPLE_DIR if args.sample_data else INPUT_MAIN_DIR
 
     spark = get_spark("iteration2_bronze")
 
