@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Fetches real NYC TLC data into this repo's gitignored data/ folder, laid
-# out the same way as sample_data/ (a trips/ subfolder of parquet files, plus
-# a top-level taxi_zone_lookup.csv) so iteration scripts can read either one
-# via --data-dir.
+# Fetches real NYC TLC data into this repo's gitignored data/input_main/
+# folder, laid out the same way as data/input_sample/ (a trips/ subfolder of
+# parquet files, plus a top-level taxi_zone_lookup.csv) so iteration scripts
+# can read either one via --data-dir.
 #
 # Usage: ./download_data.sh YYYY-MM
 #
@@ -15,7 +15,7 @@ set -euo pipefail
 YEAR_MONTH="${1:?Usage: ./download_data.sh YYYY-MM}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
-DATA_DIR="$REPO_ROOT/data"
+DATA_DIR="$REPO_ROOT/data/input_main"
 TLC_BASE_URL="https://d37ci6vzurychx.cloudfront.net"
 TRIP_DATA_URL="${TLC_BASE_URL}/trip-data/yellow_tripdata_${YEAR_MONTH}.parquet"
 ZONE_LOOKUP_URL="${TLC_BASE_URL}/misc/taxi_zone_lookup.csv"

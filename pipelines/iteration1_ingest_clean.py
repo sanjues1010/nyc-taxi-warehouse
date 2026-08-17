@@ -1,18 +1,12 @@
 import functools
-import sys
 from datetime import datetime
 from pathlib import Path
-
-REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
-sys.path.insert(0, str(REPO_ROOT))
 
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import avg, coalesce, col, count, hour, lit, sum as spark_sum, when
 
+from common.paths import INPUT_SAMPLE_DIR, output_dir
 from common.spark_session import get_spark
-
-SAMPLE_DIR = REPO_ROOT / "sample_data"
-CLEANED_DIR = SAMPLE_DIR / "cleaned"
 
 REQUIRED_TRIP_FIELDS = [
     "tpep_pickup_datetime",
@@ -142,8 +136,8 @@ def write_outputs(
 def main() -> None:
     spark = get_spark("iteration1_ingest_clean")
 
-    trips = spark.read.parquet(str(SAMPLE_DIR / "trips"))
-    zones = spark.read.option("header", True).csv(str(SAMPLE_DIR / "taxi_zone_lookup.csv"))
+    trips = spark.read.parquet(str(INPUT_SAMPLE_DIR / "trips"))
+    zones = spark.read.option("header", True).csv(str(INPUT_SAMPLE_DIR / "taxi_zone_lookup.csv"))
 
     trips_valid, null_dropped, negative_fares = clean_trips(trips)
     trips_valid.cache()
@@ -162,7 +156,7 @@ def main() -> None:
     tips = tips_by_payment_type(trips_valid)
     tips.show(truncate=False)
 
-    run_dir = CLEANED_DIR / datetime.now().strftime("%Y%m%d_%H%M%S")
+    run_dir = output_dir("iteration1_ingest_clean", "sample") / datetime.now().strftime("%Y%m%d_%H%M%S")
     write_outputs(trips_valid, null_dropped, negative_fares, run_dir)
 
     trips_valid.unpersist()

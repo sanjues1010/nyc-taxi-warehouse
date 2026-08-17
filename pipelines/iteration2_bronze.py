@@ -1,10 +1,6 @@
 import argparse
-import sys
-from pathlib import Path
 
-REPO_ROOT = next(p for p in Path(__file__).resolve().parents if (p / ".git").exists())
-sys.path.insert(0, str(REPO_ROOT))
-
+from common.paths import DATA_ROOT
 from common.spark_session import get_spark
 
 
@@ -12,15 +8,15 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--data-dir",
-        default="sample_data",
-        help="folder under the repo root to read trip/zone data from (default: sample_data)",
+        default="input_sample",
+        help="folder under data/ to read trip/zone data from (default: input_sample)",
     )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    data_dir = REPO_ROOT / args.data_dir
+    data_dir = DATA_ROOT / args.data_dir
 
     spark = get_spark("iteration2_bronze")
 

@@ -1,4 +1,5 @@
-data/
+data/input_main/
+data/output/
 spark-warehouse/
 checkpoints/
 derby.log
@@ -11,10 +12,6 @@ __pycache__/
 .DS_Store
 
 # Spark's local-filesystem write sidecar files -- harmless, not worth
-# committing alongside the intentional sample_data/ parquet fixture.
-sample_data/**/_SUCCESS
-sample_data/**/*.crc
-
-# Generated per-run script output -- reproducible from the committed
-# sample_data/ input, not itself a fixture worth tracking.
-sample_data/cleaned/
+# committing alongside the intentional data/input_sample/ parquet fixture.
+data/input_sample/**/_SUCCESS
+data/input_sample/**/*.crc
